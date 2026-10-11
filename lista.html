@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Gianlu</title>
+</head>
+<body>
+  <p>Caricamento...</p>
+  <script>
+    (async function () {
+      const SALT = "9b49f23zNKEBJebyJk8G5A==";
+      const IV = "63uI55AoBLcJpUPp";
+      const DATI = "FPNTvdfSn3c7hGMyFF5mcpYSB/5HlciWQpWEDtbcgmIA+FTq1v8cxsmhiAG3NDz5AZCX6FrkZtS9G6Y0MU7DJQxGDyPcOlTfbFEUU7quJktXJlsiIJ3NJmtGQ+vw3wdpsk4MT7BGAp9hnC3VlUSPjyuw8xEaN3X5QwccHMzl6PsaSGiS9WxAiywXRmThUIGSr4YJf4Yo46vqyOGZcSnbu9iV2zQckjMcZIM7t+xh7ESsrzylCRRmxSce14FB/yWHr6xkFTRUiMpHuR+sZJtqbMDH/ejx77Mw+K9BYyoGL19tkWzG+QZzxBoR3peDcefBj7P36qPwttlrlCBTyLSJEKuwjLINSJo43t82qpvo3CakgFg4PF4/fTy85JzYk4hmvt4H+BAjjCThAQcwkIDXs6LAfe+94ysPWtGTtvYYMRTCjdblTLXBcZxopXhIpabayMfFLPJv8NjnrF1uWBQoja22yVXNpmI1hDbAM3O/avU3HrXDW8k+tKENTeP2wGRVyXYgaZBUb3uwsAkakwMY85UB";
+      const ITERAZIONI = 600000;
+
+      function daBase64(s) {
+        return Uint8Array.from(atob(s), function (c) { return c.charCodeAt(0); });
+      }
+
+      function tornaAlLogin(errore) {
+        try {
+          sessionStorage.removeItem("k");
+          if (errore) sessionStorage.setItem("errore", "1");
+        } catch (e) {}
+        window.location.replace("index.html");
+      }
+
+      let password = null;
+      try { password = sessionStorage.getItem("k"); } catch (e) {}
+      if (!password) return tornaAlLogin(false);
+
+      try {
+        const base = await crypto.subtle.importKey(
+          "raw", new TextEncoder().encode(password), "PBKDF2", false, ["deriveKey"]
+        );
+        const chiave = await crypto.subtle.deriveKey(
+          { name: "PBKDF2", salt: daBase64(SALT), iterations: ITERAZIONI, hash: "SHA-256" },
+          base, { name: "AES-GCM", length: 256 }, false, ["decrypt"]
+        );
+        const chiaro = await crypto.subtle.decrypt(
+          { name: "AES-GCM", iv: daBase64(IV) }, chiave, daBase64(DATI)
+        );
+        document.open();
+        document.write(new TextDecoder().decode(chiaro));
+        document.close();
+      } catch (e) {
+        tornaAlLogin(true);
+      }
+    })();
+  </script>
+</body>
+</html>
