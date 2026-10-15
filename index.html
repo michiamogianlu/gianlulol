@@ -17,9 +17,11 @@
   <p id="messaggio"></p>
 
   <script>
+    // Qui non c'è nessun controllo: la password giusta è quella che riesce
+    // a decifrare /lista/. Se è sbagliata, /lista/ rimanda qui.
     try {
       if (sessionStorage.getItem("errore")) {
-        document.getElementById("messaggio").textContent = "Ah qua entriamo senza autorizzazione eh me la segno...";
+        document.getElementById("messaggio").textContent = "Password errata, riprova.";
         sessionStorage.removeItem("errore");
       }
     } catch (e) {}
@@ -29,10 +31,10 @@
       try {
         sessionStorage.setItem("k", document.getElementById("password").value);
       } catch (err) {
-        document.getElementById("messaggio").textContent = "Il tuo browser non va bene cambialo your problem not mine";
+        document.getElementById("messaggio").textContent = "Il browser blocca la memoria di sessione.";
         return;
       }
-      window.location.href = "lista.html";
+      window.location.href = "lista/";
     });
   </script>
 </body>
